@@ -234,4 +234,3 @@ const emptyStateDescription = css({
   fontSize: "14px",
   maxWidth: "28rem"
 });
-
