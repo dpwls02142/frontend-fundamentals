@@ -110,10 +110,9 @@ export function PostList({ scrollElementRef }: PostListProps) {
   return (
     <div ref={listContainerRef} className={postListContainer}>
       <div
+        className={virtualListContainer}
         style={{
-          height: `${rowVirtualizer.getTotalSize()}px`,
-          width: "100%",
-          position: "relative"
+          height: `${rowVirtualizer.getTotalSize()}px`
         }}
       >
         {virtualItems.map((virtualItem) => {
@@ -122,11 +121,8 @@ export function PostList({ scrollElementRef }: PostListProps) {
               key={virtualItem.key}
               data-index={virtualItem.index}
               ref={rowVirtualizer.measureElement}
+              className={virtualListItem}
               style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
                 transform: `translateY(${virtualItem.start - scrollMargin}px)`
               }}
             >
@@ -170,6 +166,18 @@ const getPostListProps = (sortOption: SortOption) => {
 
 // Container Styles
 const postListContainer = css({
+  width: "100%"
+});
+
+const virtualListContainer = css({
+  width: "100%",
+  position: "relative"
+});
+
+const virtualListItem = css({
+  position: "absolute",
+  top: 0,
+  left: 0,
   width: "100%"
 });
 
