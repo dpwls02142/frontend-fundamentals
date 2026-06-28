@@ -101,7 +101,10 @@ export function PostList({ scrollElementRef }: PostListProps) {
         }}
       >
         {virtualItems.map((virtualItem) => {
-          const hasItemGap = virtualItem.index < discussions.length - 1;
+          const lastRowIndex = hasNextPage
+            ? discussions.length
+            : discussions.length - 1;
+          const hasItemGap = virtualItem.index < lastRowIndex;
 
           return (
             <div
