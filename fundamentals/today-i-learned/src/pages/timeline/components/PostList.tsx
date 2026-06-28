@@ -11,11 +11,11 @@ import { SortOption } from "../types";
 import { useSearchParams } from "react-router-dom";
 import { CATEGORY_ID } from "@/constants";
 
-interface PostListProps {
+export function PostList({
+  scrollElementRef
+}: {
   scrollElementRef: RefObject<HTMLElement>;
-}
-
-export function PostList({ scrollElementRef }: PostListProps) {
+}) {
   const [searchParams] = useSearchParams({ sort: "newest" });
 
   const sortOption = searchParams.get("sort") as SortOption;
