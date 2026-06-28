@@ -6,7 +6,7 @@ import { useInfiniteDiscussions } from "@/api/hooks/useDiscussions";
 import { useUserProfile } from "@/api/hooks/useUser";
 import { useVirtualInfiniteScroll } from "@/hooks/useVirtualInfiniteScroll";
 import { css } from "@styled-system/css";
-import type { RefObject } from "react";
+import { useCallback, useMemo, type RefObject } from "react";
 import { SortOption } from "../types";
 import { useSearchParams } from "react-router-dom";
 import { CATEGORY_ID } from "@/constants";
@@ -29,17 +29,33 @@ export function PostList({ scrollElementRef }: PostListProps) {
     isLoading
   } = useInfiniteDiscussions({ ...getPostListProps(sortOption) });
 
-  const discussions =
-    postsData?.pages.flatMap((page) => page.discussions) ?? [];
+  const discussions = useMemo(
+    () => postsData?.pages.flatMap((page) => page.discussions) ?? [],
+    [postsData?.pages]
+  );
 
-  const { listContainerRef, rowVirtualizer, virtualItems, isLoaderIndex } =
-    useVirtualInfiniteScroll({
-      itemCount: discussions.length,
-      scrollElementRef,
-      hasNextPage,
-      isFetchingNextPage,
-      fetchNextPage
-    });
+  const getVirtualItemKey = useCallback(
+    (itemIndex: number) => {
+      const discussionItem = discussions[itemIndex];
+      return discussionItem?.id ?? `loader-${itemIndex}`;
+    },
+    [discussions]
+  );
+
+  const {
+    listContainerRef,
+    rowVirtualizer,
+    virtualItems,
+    scrollMargin,
+    isLoaderIndex
+  } = useVirtualInfiniteScroll({
+    itemCount: discussions.length,
+    scrollElementRef,
+    getItemKey: getVirtualItemKey,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage
+  });
 
   const renderVirtualItemContent = (itemIndex: number) => {
     if (isLoaderIndex(itemIndex)) {
@@ -101,11 +117,6 @@ export function PostList({ scrollElementRef }: PostListProps) {
         }}
       >
         {virtualItems.map((virtualItem) => {
-          const lastRowIndex = hasNextPage
-            ? discussions.length
-            : discussions.length - 1;
-          const hasItemGap = virtualItem.index < lastRowIndex;
-
           return (
             <div
               key={virtualItem.key}
@@ -116,8 +127,7 @@ export function PostList({ scrollElementRef }: PostListProps) {
                 top: 0,
                 left: 0,
                 width: "100%",
-                transform: `translateY(${virtualItem.start}px)`,
-                paddingBottom: hasItemGap ? "1.5rem" : 0
+                transform: `translateY(${virtualItem.start - scrollMargin}px)`
               }}
             >
               {renderVirtualItemContent(virtualItem.index)}
